@@ -14,11 +14,11 @@ Run
 > python3 footskill.py
 
 >Commands:
-> leaderboard
-> leaderboard-table
-> games
-> save-game <date> <blue_players> <red_players> [Red|Blue|Balanced]
-> generate-teams <players>
+> leaderboard<br />
+> leaderboard-table<br />
+> games<br />
+> save-game <date> <blue_players> <red_players> [Red|Blue|Balanced]<br />
+> generate-teams <players><br />
 
 ## Database
 
