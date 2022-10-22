@@ -1,5 +1,7 @@
 # FootSkill
-### A simple soccer ranking system for producing fair teams
+### A simple soccer ranking system for producing fair teams powered by TrueSkill
+
+https://trueskill.org/#trueskill.Rating
 
 ## Requirements
 
