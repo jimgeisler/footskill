@@ -27,6 +27,8 @@ def processArguments(args):
 		saveGame(args[2], args[3], args[4], args[5])
 	elif command == "generate-teams" and arg_len == 3:
 		output.printFairestTeams(args[2])
+	elif command == "player-distribution-table" and arg_len == 3:
+		output.printPlayerDistribution(args[2])
 	else:
 		print("Commands:")
 		print(" leaderboard")
@@ -34,5 +36,6 @@ def processArguments(args):
 		print(" games")
 		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced]")
 		print(" generate-teams <players>")
+		print(" player-distribution-table <player_name>")
 
 processArguments(sys.argv)

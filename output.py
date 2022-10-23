@@ -7,6 +7,8 @@ from trueskill import Rating
 from trueskill import quality
 import itertools
 
+import scipy.stats as stats
+
 # Prints the game data
 def printGames():
 	games = datamanager.getAllGames()
@@ -103,6 +105,30 @@ def __dateFromString(stringDate):
 
 def __sortFunc(e):
 	return __dateFromString(e['date'])	
+
+def printPlayerDistribution(names):
+	players = datamanager.getPlayers(names)
+	player_ratings = {}
+	for player in players:
+		ratings = player['ratings']
+		ratings.sort(key=__sortFunc)
+		rating = ratings[-1]
+		mu = rating['mu']
+		sigma = rating['sigma']
+		player_ratings[player['name']] = {'mu': mu, 'sigma':sigma}
+
+	for n in range(75):
+		values_to_print = ""
+		first_line = ""
+		for player in players:
+			player_name = player['name']
+			first_line += player_name + ", "
+			rating = player_ratings[player_name]
+			values_to_print += "%.4f" % (stats.norm.pdf(n, rating['mu'], rating['sigma'])) + ", "
+		if n ==0:
+			print(first_line[:-2])
+		print(values_to_print[:-2])
+
 
 def printPlayers():
 	players = datamanager.getAllPlayers()

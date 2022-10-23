@@ -7,6 +7,7 @@ https://trueskill.org/#trueskill.Rating
 
 > pip install trueskill
 > pip install tinydb
+> pip install scipy
 
 ## How to use FootSkill
 
@@ -19,6 +20,7 @@ Run
 > games<br />
 > save-game <date> <blue_players> <red_players> [Red|Blue|Balanced]<br />
 > generate-teams <players><br />
+> player-distribution-table <player_name><br />
 
 ## Database
 
