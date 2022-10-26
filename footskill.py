@@ -3,12 +3,17 @@ import sys
 import datamanager
 import output
 import constants
+import analysis
 
 outcomes = [constants.blue, constants.red, constants.balanced]
 
+def processGame(date):
+	game = datamanager.getGame(date)
+	analysis.generatePlayerHistoryForGame(game)
+
 def saveGame(date, blue_team, red_team, result):
-	blue_player_names = blue_team.split(',')
-	red_player_names = red_team.split(',')
+	blue_player_names = list(map(lambda name: name.replace(' ', ''), blue_team.split(',')))
+	red_player_names = list(map(lambda name: name.replace(' ', ''), red_team.split(',')))
 	datamanager.createNewGame(date, blue_player_names, red_player_names, result)
 
 def processArguments(args):
@@ -29,13 +34,17 @@ def processArguments(args):
 		output.printFairestTeams(args[2])
 	elif command == "player-distribution-table" and arg_len == 3:
 		output.printPlayerDistribution(args[2])
+	elif command == "process-game" and arg_len == 3:
+		processGame(args[2])
 	else:
 		print("Commands:")
 		print(" leaderboard")
 		print(" leaderboard-table")
 		print(" games")
+		print(" process-game <date>")
 		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced]")
 		print(" generate-teams <players>")
 		print(" player-distribution-table <player_name>")
+		print(" process-game <date>")
 
 processArguments(sys.argv)

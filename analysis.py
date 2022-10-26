@@ -12,20 +12,21 @@ def generatePlayerHistory():
 	all_games = datamanager.getAllGames()
 
 	for game in all_games:
-		result = game['result']
-		game_date = game['date']
+		generatePlayerHistoryForGame(game)
 
-		blue_players = list(map(lambda player_name: datamanager.findOrCreateNewPlayer(player_name), game['blue_team']))
-		red_players = list(map(lambda player_name: datamanager.findOrCreateNewPlayer(player_name), game['red_team']))
+def generatePlayerHistoryForGame(game):
+	result = game['result']
+	game_date = game['date']
 
-		for player in blue_players:
-			__updatePlayerRecords(player, constants.blue, result, game_date)
-		for player in red_players:
-			__updatePlayerRecords(player, constants.red, result, game_date)
+	blue_players = list(map(lambda player_name: datamanager.findOrCreateNewPlayer(player_name), game['blue_team']))
+	red_players = list(map(lambda player_name: datamanager.findOrCreateNewPlayer(player_name), game['red_team']))
 
-		importutils.recordGame(blue_players, red_players, result, game_date)
+	for player in blue_players:
+		__updatePlayerRecords(player, constants.blue, result, game_date)
+	for player in red_players:
+		__updatePlayerRecords(player, constants.red, result, game_date)
 
-
+	importutils.recordGame(blue_players, red_players, result, game_date)
 
 def clearRecords():
 	all_players = datamanager.getAllPlayers()
