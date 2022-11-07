@@ -21,6 +21,10 @@ Run
 > save-game <date> <blue_players> <red_players> [Red|Blue|Balanced]<br />
 > generate-teams <players><br />
 > player-distribution-table <player_name><br />
+> process-game <date>
+> new-player <name>
+
+Note: saving and processing a game are two separate steps at the moment
 
 ## Database
 

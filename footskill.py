@@ -36,6 +36,9 @@ def processArguments(args):
 		output.printPlayerDistribution(args[2])
 	elif command == "process-game" and arg_len == 3:
 		processGame(args[2])
+	elif command == "new-player" and arg_len == 3:
+		player = datamanager.findOrCreateNewPlayer(args[2])
+		print(player)
 	else:
 		print("Commands:")
 		print(" leaderboard")
@@ -46,5 +49,6 @@ def processArguments(args):
 		print(" generate-teams <players>")
 		print(" player-distribution-table <player_name>")
 		print(" process-game <date>")
+		print(" new-player <name>")
 
 processArguments(sys.argv)

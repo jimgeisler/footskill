@@ -41,7 +41,10 @@ def printLeaderBoard(type):
 	for p in players:
 		pratings = p['ratings']
 		pratings.sort(key=__sortFunc)
-		rating = pratings[-1]
+		if len(pratings) > 0:
+			rating = pratings[-1]
+		else:
+			rating = {'mu': p['mu'], 'sigma': p['sigma']}
 		ratings.append(Rating(mu=rating['mu'], sigma=rating['sigma']))
 	leaderboard = sorted(ratings, key=constants.env.expose, reverse=True)
 
@@ -49,12 +52,18 @@ def printLeaderBoard(type):
 		for player in players:
 			ratings = player['ratings']
 			ratings.sort(key=__sortFunc)
-			latest_rating = ratings[-1]
+			if len(ratings) > 0:
+				latest_rating = ratings[-1]
+			else:
+				latest_rating = {'mu': p['mu'], 'sigma': p['sigma']}			
 			rating = Rating(mu=latest_rating['mu'], sigma=latest_rating['sigma'])
 			if leader == rating:
 				records = player['records']
 				records.sort(key=__sortFunc)
-				record = records[-1]
+				if len(records) > 0:
+					record = records[-1]
+				else:
+					record = {'wins': 0, 'losses': 0, 'draws': 0, 'games_played': 0}
 				if type == 'csv':
 					printPlayerCSVFormat(player['name'], index + 1, record)
 				else:
