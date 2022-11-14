@@ -36,6 +36,8 @@ def printLeaderBoard(type):
 	print("Leaderboard:")
 	if type == 'csv':
 		print("Name, , W, L, D, GP")
+	elif type == 'mu':
+		print("Name, Rank, Rating, GP")
 	ratings = []
 	players = datamanager.getAllPlayers()
 	for p in players:
@@ -66,6 +68,8 @@ def printLeaderBoard(type):
 					record = {'wins': 0, 'losses': 0, 'draws': 0, 'games_played': 0}
 				if type == 'csv':
 					printPlayerCSVFormat(player['name'], index + 1, record)
+				elif type == 'mu':
+					print(player['name'] + ", %d, %f, %d" % (index + 1, constants.env.expose(rating), record['games_played']))
 				else:
 					printPlayerCommandLine(player['name'], record)
 				

@@ -26,6 +26,8 @@ def processArguments(args):
 		output.printLeaderBoard('standard')
 	elif command == 'leaderboard-table':
 		output.printLeaderBoard('csv')
+	elif command == 'leaderboard-rating':
+		output.printLeaderBoard('mu')
 	elif command ==  'games':
 		output.printGames()
 	elif command == "save-game" and arg_len == 6 and args[5] in outcomes:
@@ -43,6 +45,7 @@ def processArguments(args):
 		print("Commands:")
 		print(" leaderboard")
 		print(" leaderboard-table")
+		print(" leaderboard-rating")
 		print(" games")
 		print(" process-game <date>")
 		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced]")
