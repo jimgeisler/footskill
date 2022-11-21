@@ -69,15 +69,18 @@ def printLeaderBoard(type):
 				if type == 'csv':
 					printPlayerCSVFormat(player['name'], index + 1, record)
 				elif type == 'mu':
-					print(player['name'] + ", %d, %f, %d" % (index + 1, constants.env.expose(rating), record['games_played']))
+					gp = record['wins'] + record['losses'] + record['draws']
+					print(player['name'] + ", %d, %f, %d" % (index + 1, constants.env.expose(rating), gp))
 				else:
 					printPlayerCommandLine(player['name'], record)
 				
 def printPlayerCommandLine(name, record):
-	print(name + ": (%d, %d, %d) / %d" % (record['wins'], record['losses'], record['draws'], record['games_played']))
+	gp = record['wins'] + record['losses'] + record['draws']
+	print(name + ": (%d, %d, %d) / %d" % (record['wins'], record['losses'], record['draws'], gp))
 
 def printPlayerCSVFormat(name, place, record):
-	print(name + ", %d, %d, %d, %d, %d" % (place, record['wins'], record['losses'], record['draws'], record['games_played']))
+	gp = record['wins'] + record['losses'] + record['draws']
+	print(name + ", %d, %d, %d, %d, %d" % (place, record['wins'], record['losses'], record['draws'], gp))
 
 # Generates the fairest possible teams from list of player names
 # Outputs the teams and the chance of a draw
@@ -141,6 +144,35 @@ def printPlayerDistribution(names):
 		if n ==0:
 			print(first_line[:-2])
 		print(values_to_print[:-2])
+
+
+def printPlayerDetails(name):
+	player = datamanager.getPlayer(name)
+	games = datamanager.getAllGames()
+	for game in games:
+		team = None
+		if name in game['blue_team']:
+			team = constants.blue
+		elif name in game['red_team']:
+			team = constants.red
+
+		if team == None:
+			continue
+
+		print("Played in game " + game['date'])
+		result = game['result']
+		if result == constants.balanced:
+			print("Draw")
+		elif result == team:
+			print("Win")
+		else:
+			print("Loss")
+
+		records = player['records']
+		for record in records:
+			if record['date'] == game['date']:
+				gp = record['wins'] + record['losses'] + record['draws']
+				print("(%d, %d, %d) | %d" % (record['wins'], record['losses'], record['draws'], gp))
 
 
 def printPlayers():

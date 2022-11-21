@@ -12,8 +12,8 @@ def processGame(date):
 	analysis.generatePlayerHistoryForGame(game)
 
 def saveGame(date, blue_team, red_team, result):
-	blue_player_names = list(map(lambda name: name.replace(' ', ''), blue_team.split(',')))
-	red_player_names = list(map(lambda name: name.replace(' ', ''), red_team.split(',')))
+	blue_player_names = list(map(lambda name: name.strip(), blue_team.split(',')))
+	red_player_names = list(map(lambda name: name.strip(), red_team.split(',')))
 	datamanager.createNewGame(date, blue_player_names, red_player_names, result)
 
 def processArguments(args):
@@ -41,6 +41,8 @@ def processArguments(args):
 	elif command == "new-player" and arg_len == 3:
 		player = datamanager.findOrCreateNewPlayer(args[2])
 		print(player)
+	elif command == "player-details" and arg_len == 3:
+		output.printPlayerDetails(args[2])
 	else:
 		print("Commands:")
 		print(" leaderboard")
@@ -53,5 +55,6 @@ def processArguments(args):
 		print(" player-distribution-table <player_name>")
 		print(" process-game <date>")
 		print(" new-player <name>")
+		print(" player-details <name>")
 
 processArguments(sys.argv)
