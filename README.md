@@ -9,6 +9,10 @@ https://trueskill.org/#trueskill.Rating
 > pip install tinydb
 > pip install scipy
 
+## Additional Server Requirements
+
+> pip install flask
+
 ## How to use FootSkill
 
 Run
@@ -25,6 +29,10 @@ Run
 > new-player <name>
 
 Note: saving and processing a game are two separate steps at the moment
+
+## How to use FootSkill REST server
+
+> python3 server.py
 
 ## Database
 
