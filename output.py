@@ -85,7 +85,7 @@ def printPlayerCSVFormat(name, place, record):
 # Generates the fairest possible teams from list of player names
 # Outputs the teams and the chance of a draw
 def printFairestTeams(player_names):
-	print("generating teams")
+	print("Name, Team")
 	players = datamanager.getPlayers(player_names)
 	total_players = len(players)
 	first_team_size = round(total_players / 2)
@@ -93,7 +93,7 @@ def printFairestTeams(player_names):
 
 	bestTeams = []
 	bestQuality = 0
-	print("Total combinations " + str(len(first_team_combos)))
+	# print("Total combinations " + str(len(first_team_combos)))
 	for first_team in first_team_combos:
 		second_team = players.copy()
 		for player in first_team:
@@ -103,12 +103,12 @@ def printFairestTeams(player_names):
 			bestTeams = [first_team, second_team]
 			bestQuality = quality
 
-	print("First team: ")
-	print(list(map(lambda player: player['name'], bestTeams[0])))
-	print("Second team: ")
-	print(list(map(lambda player: player['name'], bestTeams[1])))
-	print("Quality: ")
-	print(bestQuality)
+	for player in bestTeams[0]:
+		print(player['name'] + ", Blue")
+	for player in bestTeams[1]:
+		print(player['name'] + ", Red")
+	# print("Quality: ")
+	# print(bestQuality)
 
 def __rateTheseTeams(first_team, second_team):
 	team1_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), first_team))
