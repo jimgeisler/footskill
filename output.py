@@ -38,82 +38,41 @@ def printLeaderBoard(type):
 		print("Name, , W, L, D, GP")
 	elif type == 'mu':
 		print("Name, Rank, Rating, GP")
-	ratings = []
-	players = datamanager.getAllPlayers()
-	for p in players:
-		pratings = p['ratings']
-		pratings.sort(key=__sortFunc)
-		if len(pratings) > 0:
-			rating = pratings[-1]
+
+	players = datamanager.getLeaderboard()
+	for index, player in enumerate(players):
+		if type == 'csv':
+			printPlayerCSVFormat(player, index + 1)
+		elif type == 'mu':
+			print(player['name'] + ", %d, %f, %d" % (index + 1, constants.env.expose(Rating(mu=player['mu'], sigma=player['sigma'])), player['games_played']))
 		else:
-			rating = {'mu': p['mu'], 'sigma': p['sigma']}
-		ratings.append(Rating(mu=rating['mu'], sigma=rating['sigma']))
-	leaderboard = sorted(ratings, key=constants.env.expose, reverse=True)
-
-	for index, leader in enumerate(leaderboard):
-		for player in players:
-			ratings = player['ratings']
-			ratings.sort(key=__sortFunc)
-			if len(ratings) > 0:
-				latest_rating = ratings[-1]
-			else:
-				latest_rating = {'mu': p['mu'], 'sigma': p['sigma']}			
-			rating = Rating(mu=latest_rating['mu'], sigma=latest_rating['sigma'])
-			if leader == rating:
-				records = player['records']
-				records.sort(key=__sortFunc)
-				if len(records) > 0:
-					record = records[-1]
-				else:
-					record = {'wins': 0, 'losses': 0, 'draws': 0, 'games_played': 0}
-				if type == 'csv':
-					printPlayerCSVFormat(player['name'], index + 1, record)
-				elif type == 'mu':
-					gp = record['wins'] + record['losses'] + record['draws']
-					print(player['name'] + ", %d, %f, %d" % (index + 1, constants.env.expose(rating), gp))
-				else:
-					printPlayerCommandLine(player['name'], record)
+			printPlayerCommandLine(player)
 				
-def printPlayerCommandLine(name, record):
-	gp = record['wins'] + record['losses'] + record['draws']
-	print(name + ": (%d, %d, %d) / %d" % (record['wins'], record['losses'], record['draws'], gp))
+def printPlayerCommandLine(player):
+	print(player['name'] + ": (%d, %d, %d) / %d" % (player['wins'], player['losses'], player['draws'], player['games_played']))
 
-def printPlayerCSVFormat(name, place, record):
-	gp = record['wins'] + record['losses'] + record['draws']
-	print(name + ", %d, %d, %d, %d, %d" % (place, record['wins'], record['losses'], record['draws'], gp))
+def printPlayerCSVFormat(player, place):
+	print(player['name'] + ", %d, %d, %d, %d, %d" % (place, player['wins'], player['losses'], player['draws'], player['games_played']))
 
 # Generates the fairest possible teams from list of player names
 # Outputs the teams and the chance of a draw
 def printFairestTeams(player_names):
 	print("Name,Team")
-	players = datamanager.getPlayers(player_names)
-	total_players = len(players)
+	total_players = len(player_names)
 	first_team_size = round(total_players / 2)
-	first_team_combos = list(itertools.combinations(players, first_team_size))
 
-	bestTeams = []
-	bestQuality = 0
 	# print("Total combinations " + str(len(first_team_combos)))
-	for first_team in first_team_combos:
-		second_team = players.copy()
-		for player in first_team:
-			second_team.remove(player)
-		quality = __rateTheseTeams(first_team, second_team)
-		if quality > bestQuality:
-			bestTeams = [first_team, second_team]
-			bestQuality = quality
+	generatedTeams = datamanager.generateTeamsWithPlayers(player_names)
+	redTeam = generatedTeams["redTeam"]
+	blueTeam = generatedTeams["blueTeam"]
+	quality = generatedTeams["quality"]
 
-	for player in bestTeams[0]:
+	for player in blueTeam:
 		print(player['name'] + ",Blue")
-	for player in bestTeams[1]:
+	for player in redTeam:
 		print(player['name'] + ",Red")
 	# print("Quality: ")
 	# print(bestQuality)
-
-def __rateTheseTeams(first_team, second_team):
-	team1_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), first_team))
-	team2_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), second_team))
-	return quality([team1_ratings, team2_ratings])
 
 def __dateFromString(stringDate):
 	monthdayyear = stringDate.split('/')

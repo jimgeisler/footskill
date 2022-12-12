@@ -2,7 +2,10 @@ from tinydb import TinyDB, Query
 
 from datetime import date
 
-from trueskill import Rating
+from trueskill import Rating, quality
+
+import constants
+import itertools
 
 database = 'team-rankings-db/db.json'
 db = TinyDB(database)
@@ -71,6 +74,73 @@ def getPlayers(names):
 # returns a list of all players in the database
 def getAllPlayers():
 	return db.table('players').all()
+
+# returns a list of all players in leaderboard order with W/L/D populated
+def getLeaderboard():
+	ratings = []
+	players = getAllPlayers()
+	for p in players:
+		pratings = p['ratings']
+		pratings.sort(key=__sortFunc)
+		if len(pratings) > 0:
+			rating = pratings[-1]
+		else:
+			rating = {'mu': p['mu'], 'sigma': p['sigma']}
+		ratings.append(Rating(mu=rating['mu'], sigma=rating['sigma']))
+	leaderboard = sorted(ratings, key=constants.env.expose, reverse=True)
+
+	returnPlayerList = []
+	for index, leader in enumerate(leaderboard):
+		for player in players:
+			ratings = player['ratings']
+			ratings.sort(key=__sortFunc)
+			if len(ratings) > 0:
+				latest_rating = ratings[-1]
+			else:
+				latest_rating = {'mu': p['mu'], 'sigma': p['sigma']}			
+			rating = Rating(mu=latest_rating['mu'], sigma=latest_rating['sigma'])
+			if leader == rating:
+				records = player['records']
+				records.sort(key=__sortFunc)
+				if len(records) > 0:
+					record = records[-1]
+				else:
+					record = {'wins': 0, 'losses': 0, 'draws': 0, 'games_played': 0}
+				player["wins"] = record["wins"]
+				player["losses"] = record["losses"]
+				player["draws"] = record["draws"]
+				player["games_played"] = record["games_played"]
+				returnPlayerList.append(player)
+	return returnPlayerList
+
+def generateTeamsWithPlayers(player_names):
+	players = getPlayers(player_names)
+	total_players = len(players)
+	first_team_size = round(total_players / 2)
+	first_team_combos = list(itertools.combinations(players, first_team_size))
+
+	bestTeams = []
+	bestQuality = 0
+	for first_team in first_team_combos:
+		second_team = players.copy()
+		for player in first_team:
+			second_team.remove(player)
+		quality = __rateTheseTeams(first_team, second_team)
+		if quality > bestQuality:
+			bestTeams = [first_team, second_team]
+			bestQuality = quality
+
+	return {
+		"redTeam": bestTeams[0],
+		"blueTeam": bestTeams[1],
+		"quality": bestQuality
+	}
+
+def __rateTheseTeams(first_team, second_team):
+	team1_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), first_team))
+	team2_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), second_team))
+	return quality([team1_ratings, team2_ratings])
+
 
 def updatePlayerRating(name, rating):
 	db.table('players').update({'mu': rating.mu, 'sigma': rating.sigma}, Query().name == name)
