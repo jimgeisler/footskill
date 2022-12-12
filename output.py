@@ -85,7 +85,7 @@ def printPlayerCSVFormat(name, place, record):
 # Generates the fairest possible teams from list of player names
 # Outputs the teams and the chance of a draw
 def printFairestTeams(player_names):
-	print("Name, Team")
+	print("Name,Team")
 	players = datamanager.getPlayers(player_names)
 	total_players = len(players)
 	first_team_size = round(total_players / 2)
@@ -104,9 +104,9 @@ def printFairestTeams(player_names):
 			bestQuality = quality
 
 	for player in bestTeams[0]:
-		print(player['name'] + ", Blue")
+		print(player['name'] + ",Blue")
 	for player in bestTeams[1]:
-		print(player['name'] + ", Red")
+		print(player['name'] + ",Red")
 	# print("Quality: ")
 	# print(bestQuality)
 
