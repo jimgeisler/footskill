@@ -49,10 +49,12 @@ def printLeaderBoard(type):
 			printPlayerCommandLine(player)
 				
 def printPlayerCommandLine(player):
-	print(player['name'] + ": (%d, %d, %d) / %d" % (player['wins'], player['losses'], player['draws'], player['games_played']))
+	gp = player['wins'] + player['losses'] + player['draws']
+	print(player['name'] + ": (%d, %d, %d) / %d" % (player['wins'], player['losses'], player['draws'], gp))
 
 def printPlayerCSVFormat(player, place):
-	print(player['name'] + ", %d, %d, %d, %d, %d" % (place, player['wins'], player['losses'], player['draws'], player['games_played']))
+	gp = player['wins'] + player['losses'] + player['draws']
+	print(player['name'] + ", %d, %d, %d, %d, %d" % (place, player['wins'], player['losses'], player['draws'], gp))
 
 # Generates the fairest possible teams from list of player names
 # Outputs the teams and the chance of a draw
