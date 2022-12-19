@@ -8,26 +8,24 @@
 import SwiftUI
 
 struct CreateTeamsButton: View {
+    let dataManager: DataManager
     var players: [Player] = []
-    var createAction: ([Player]) -> Void
     
     var body: some View {
         VStack {
             Spacer()
-            HStack {
-                Spacer()
-                Button {
-                    createAction(players)
-                } label: {
+            NavigationLink(destination: GameView(dataManager: dataManager, players: players)) {
+                HStack {
+                    Spacer()
                     Text("Create teams with \(players.count) players")
                         .padding()
                         .foregroundColor(.white)
                         .padding(.bottom, 3)
+                        .background(.blue)
+                        .cornerRadius(38.5)
+                        .padding()
+                        .shadow(color: .black.opacity(0.3), radius: 3, x: 3, y: 3)
                 }
-                .background(.blue)
-                .cornerRadius(38.5)
-                .padding()
-                .shadow(color: .black.opacity(0.3), radius: 3, x: 3, y: 3)
             }
         }
     }
@@ -35,6 +33,6 @@ struct CreateTeamsButton: View {
 
 struct CreateTeamsButton_Previews: PreviewProvider {
     static var previews: some View {
-        CreateTeamsButton(players: [], createAction: { _ in })
+        CreateTeamsButton(dataManager: DataManager(), players: [])
     }
 }

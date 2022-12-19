@@ -16,4 +16,18 @@ def generateTeams():
     player_names = [player["name"] for player in players]
     return datamanager.generateTeamsWithPlayers(player_names)
 
+@app.route('/games', methods=['GET'])
+def allGames():
+    return datamanager.getAllGames(True)
+
+@app.route('/games', methods=['POST'])
+def createGame():
+    game = request.get_json()
+    return datamanager.createNewGame(game["date"], game["blueTeam"], game["redTeam"], game["result"])
+
+@app.route('/updategame', methods=['POST'])
+def updateGame():
+    game = request.get_json()
+    return datamanager.updateGame(game)
+
 app.run()

@@ -19,6 +19,14 @@
 		B39D4370294180D0004705D1 /* PlayerRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39D436F294180D0004705D1 /* PlayerRow.swift */; };
 		B39D4372294180FF004705D1 /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39D4371294180FF004705D1 /* Player.swift */; };
 		B39D4375294195CE004705D1 /* CreateTeamsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = B39D4374294195CE004705D1 /* CreateTeamsButton.swift */; };
+		B3ED2F342948DC7000D85CF8 /* Game.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3ED2F332948DC7000D85CF8 /* Game.swift */; };
+		B3ED2F362948DEB900D85CF8 /* GameList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3ED2F352948DEB900D85CF8 /* GameList.swift */; };
+		B3ED2F382948DF6000D85CF8 /* PlayerList.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3ED2F372948DF6000D85CF8 /* PlayerList.swift */; };
+		B3ED2F3A2949031800D85CF8 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3ED2F392949031800D85CF8 /* GameView.swift */; };
+		B3ED2F3C29490FE700D85CF8 /* TeamView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3ED2F3B29490FE700D85CF8 /* TeamView.swift */; };
+		B3ED2F3E2949106B00D85CF8 /* ResultBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3ED2F3D2949106B00D85CF8 /* ResultBadge.swift */; };
+		B3ED2F40294A6AE900D85CF8 /* AcceptCancelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3ED2F3F294A6AE900D85CF8 /* AcceptCancelView.swift */; };
+		B3ED2F42294AB4EC00D85CF8 /* PickResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3ED2F41294AB4EB00D85CF8 /* PickResultView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +62,14 @@
 		B39D436F294180D0004705D1 /* PlayerRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerRow.swift; sourceTree = "<group>"; };
 		B39D4371294180FF004705D1 /* Player.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Player.swift; sourceTree = "<group>"; };
 		B39D4374294195CE004705D1 /* CreateTeamsButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateTeamsButton.swift; sourceTree = "<group>"; };
+		B3ED2F332948DC7000D85CF8 /* Game.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Game.swift; sourceTree = "<group>"; };
+		B3ED2F352948DEB900D85CF8 /* GameList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameList.swift; sourceTree = "<group>"; };
+		B3ED2F372948DF6000D85CF8 /* PlayerList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerList.swift; sourceTree = "<group>"; };
+		B3ED2F392949031800D85CF8 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
+		B3ED2F3B29490FE700D85CF8 /* TeamView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TeamView.swift; sourceTree = "<group>"; };
+		B3ED2F3D2949106B00D85CF8 /* ResultBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResultBadge.swift; sourceTree = "<group>"; };
+		B3ED2F3F294A6AE900D85CF8 /* AcceptCancelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AcceptCancelView.swift; sourceTree = "<group>"; };
+		B3ED2F41294AB4EB00D85CF8 /* PickResultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickResultView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +102,7 @@
 			children = (
 				B39D4371294180FF004705D1 /* Player.swift */,
 				B393A0652946C3B800431DD8 /* GeneratedTeams.swift */,
+				B3ED2F332948DC7000D85CF8 /* Game.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -159,9 +176,16 @@
 		B39D437329418621004705D1 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B3ED2F3F294A6AE900D85CF8 /* AcceptCancelView.swift */,
+				B3ED2F41294AB4EB00D85CF8 /* PickResultView.swift */,
 				B39D4347294020C5004705D1 /* ContentView.swift */,
 				B39D4374294195CE004705D1 /* CreateTeamsButton.swift */,
 				B39D436F294180D0004705D1 /* PlayerRow.swift */,
+				B3ED2F352948DEB900D85CF8 /* GameList.swift */,
+				B3ED2F372948DF6000D85CF8 /* PlayerList.swift */,
+				B3ED2F392949031800D85CF8 /* GameView.swift */,
+				B3ED2F3B29490FE700D85CF8 /* TeamView.swift */,
+				B3ED2F3D2949106B00D85CF8 /* ResultBadge.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -298,11 +322,19 @@
 			files = (
 				B39D4372294180FF004705D1 /* Player.swift in Sources */,
 				B350B78A29456EBA00B98CFD /* DataManager.swift in Sources */,
+				B3ED2F42294AB4EC00D85CF8 /* PickResultView.swift in Sources */,
+				B3ED2F40294A6AE900D85CF8 /* AcceptCancelView.swift in Sources */,
 				B39D4348294020C5004705D1 /* ContentView.swift in Sources */,
 				B39D4346294020C5004705D1 /* FootskillApp.swift in Sources */,
 				B393A0662946C3B800431DD8 /* GeneratedTeams.swift in Sources */,
+				B3ED2F3A2949031800D85CF8 /* GameView.swift in Sources */,
+				B3ED2F3E2949106B00D85CF8 /* ResultBadge.swift in Sources */,
 				B39D4370294180D0004705D1 /* PlayerRow.swift in Sources */,
+				B3ED2F382948DF6000D85CF8 /* PlayerList.swift in Sources */,
 				B39D4375294195CE004705D1 /* CreateTeamsButton.swift in Sources */,
+				B3ED2F362948DEB900D85CF8 /* GameList.swift in Sources */,
+				B3ED2F342948DC7000D85CF8 /* Game.swift in Sources */,
+				B3ED2F3C29490FE700D85CF8 /* TeamView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

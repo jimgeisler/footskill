@@ -9,9 +9,8 @@ import SwiftUI
 
 struct PlayerRow: View {
     let player: Player
-    let toggleActiveCallback: (Bool, Player) -> Void
-    
     @State var isPlaying: Bool = false
+    let toggleActiveCallback: (Bool, Player) -> Void
     
     var body: some View {
         HStack {
