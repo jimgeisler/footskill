@@ -184,13 +184,20 @@ def getGame(date):
 		return games[0]
 	return game
 
+def updateGame(game):
+	db.table('games').update(game, Query().date == game['date'])
+	return game
+
 def __newGame(date, blue_team, red_team, result):
 	return {'date': date, 'blue_team': blue_team, 'red_team': red_team, 'result': result}	
 
 # returns a list of all games in the database
-def getAllGames():
+# reverse - boolean that will return the results in descending order if true
+def getAllGames(reverse=False):
 	games = db.table('games').all()
 	games.sort(key=__sortFunc)
+	if reverse:
+		games.reverse()
 	return games
 
 def __dateFromString(stringDate):
