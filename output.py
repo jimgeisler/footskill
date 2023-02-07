@@ -33,28 +33,55 @@ def printGames():
 
 # Prints the players ranked highest to lowest rating
 def printLeaderBoard(type):
+
+	games = datamanager.getAllGames()
+	last_game = games[-1]
+	last_date = __dateFromString(last_game['date'])
+	before_last_game = games[-2]
+	before_last_date = __dateFromString(before_last_game['date'])
+
 	print("Leaderboard:")
 	if type == 'csv':
-		print("Name, , W, L, D, GP")
+		print("Name, , W, L, D, GP, Diff")
 	elif type == 'mu':
 		print("Name, Rank, Rating, GP")
 
-	players = datamanager.getLeaderboard()
+	players = datamanager.getLeaderboard(before_last_date)
+	placements = {}
+	for index, player in enumerate(players):
+		placements[player['name']] = index + 1
+
+	players = datamanager.getLeaderboard(last_date)
 	for index, player in enumerate(players):
 		if type == 'csv':
-			printPlayerCSVFormat(player, index + 1)
+			printPlayerCSVFormat(player, index + 1, placements[player['name']])
 		elif type == 'mu':
 			print(player['name'] + ", %d, %f, %d" % (index + 1, constants.env.expose(Rating(mu=player['mu'], sigma=player['sigma'])), player['games_played']))
 		else:
-			printPlayerCommandLine(player)
+			printPlayerCommandLine(player)	
+
+def getPlayerPositions():
+	players1 = datamanager.getLeaderboard(1)
+	players2 = datamanager.getLeaderboard(2)
+	placement_by_name = {}
+	for index, player in enumerate(players1):
+		placement_by_name[player['name']] = index
+
+	for index, player in enumerate(players2):
+		placement_by_name[player['name']] = index - placement_by_name[player['name']]
+
+	print(placement_by_name)
+
+		
 				
 def printPlayerCommandLine(player):
 	gp = player['wins'] + player['losses'] + player['draws']
 	print(player['name'] + ": (%d, %d, %d) / %d" % (player['wins'], player['losses'], player['draws'], gp))
 
-def printPlayerCSVFormat(player, place):
+def printPlayerCSVFormat(player, place, prev_game_rank):
 	gp = player['wins'] + player['losses'] + player['draws']
-	print(player['name'] + ", %d, %d, %d, %d, %d" % (place, player['wins'], player['losses'], player['draws'], gp))
+	diff = prev_game_rank - place
+	print(player['name'] + ", %d, %d, %d, %d, %d, %d" % (place, player['wins'], player['losses'], player['draws'], gp, diff))
 
 # Generates the fairest possible teams from list of player names
 # Outputs the teams and the chance of a draw

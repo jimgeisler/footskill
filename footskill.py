@@ -43,6 +43,8 @@ def processArguments(args):
 		print(player)
 	elif command == "player-details" and arg_len == 3:
 		output.printPlayerDetails(args[2])
+	elif command == "test":
+		output.getPlayerPositions()
 	else:
 		print("Commands:")
 		print(" leaderboard")

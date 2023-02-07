@@ -75,37 +75,46 @@ def getPlayers(names):
 def getAllPlayers():
 	return db.table('players').all()
 
+def __ratingAtDate(player, date):
+	pratings = player['ratings']
+	pratings.sort(key=__sortFunc)	
+	final_rating = {'mu': player['mu'], 'sigma': player['sigma']}
+	for rating in reversed(pratings):
+		rdate = __dateFromString(rating['date'])
+		if rdate <= date:
+			final_rating = rating
+			break
+	return final_rating
+
+def __recordAtDate(player, date):
+	records = player['records']
+	records.sort(key=__sortFunc)
+	recordAtDate = {'wins': 0, 'losses': 0, 'draws': 0, 'games_played': 0, 'date':'n/a'}
+	for record in reversed(records):
+		rdate = __dateFromString(record['date'])
+		if rdate <= date:
+			recordAtDate = record
+			break	
+	return recordAtDate
+		
+
 # returns a list of all players in leaderboard order with W/L/D populated
-def getLeaderboard():
+def getLeaderboard(date):
 	ratings = []
 	players = getAllPlayers()
+
 	for p in players:
-		pratings = p['ratings']
-		pratings.sort(key=__sortFunc)
-		if len(pratings) > 0:
-			rating = pratings[-1]
-		else:
-			rating = {'mu': p['mu'], 'sigma': p['sigma']}
+		rating = __ratingAtDate(p, date)
 		ratings.append(Rating(mu=rating['mu'], sigma=rating['sigma']))
 	leaderboard = sorted(ratings, key=constants.env.expose, reverse=True)
 
 	returnPlayerList = []
 	for index, leader in enumerate(leaderboard):
 		for player in players:
-			ratings = player['ratings']
-			ratings.sort(key=__sortFunc)
-			if len(ratings) > 0:
-				latest_rating = ratings[-1]
-			else:
-				latest_rating = {'mu': p['mu'], 'sigma': p['sigma']}			
+			latest_rating = __ratingAtDate(player, date)
 			rating = Rating(mu=latest_rating['mu'], sigma=latest_rating['sigma'])
 			if leader == rating:
-				records = player['records']
-				records.sort(key=__sortFunc)
-				if len(records) > 0:
-					record = records[-1]
-				else:
-					record = {'wins': 0, 'losses': 0, 'draws': 0, 'games_played': 0}
+				record = __recordAtDate(player, date)
 				player["wins"] = record["wins"]
 				player["losses"] = record["losses"]
 				player["draws"] = record["draws"]
