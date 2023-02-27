@@ -31,6 +31,18 @@ def printGames():
 		print("Red team: " + red_players)
 		print()
 
+def _playerNameSorter(elem):
+	return elem['name']
+
+def printAllPlayers():
+	players = datamanager.getAllPlayers()
+
+	players.sort(key=_playerNameSorter)
+
+	for player in players:
+		print(player['name'])
+
+
 # Prints the players ranked highest to lowest rating
 def printLeaderBoard(type):
 
