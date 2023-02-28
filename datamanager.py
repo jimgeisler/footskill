@@ -113,7 +113,7 @@ def getLeaderboard(date):
 		for player in players:
 			latest_rating = __ratingAtDate(player, date)
 			rating = Rating(mu=latest_rating['mu'], sigma=latest_rating['sigma'])
-			if leader == rating:
+			if leader == rating and not listHasPlayerByName(returnPlayerList, player['name']):
 				record = __recordAtDate(player, date)
 				player["wins"] = record["wins"]
 				player["losses"] = record["losses"]
@@ -121,6 +121,12 @@ def getLeaderboard(date):
 				player["games_played"] = record["games_played"]
 				returnPlayerList.append(player)
 	return returnPlayerList
+
+def listHasPlayerByName(players, player_name):
+	for player in players:
+		if player['name'] == player_name:
+			return True
+	return False
 
 def generateTeamsWithPlayers(player_names):
 	players = getPlayers(player_names)
