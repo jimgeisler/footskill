@@ -45,6 +45,8 @@ def processArguments(args):
 		output.printPlayerDetails(args[2])
 	elif command == "players":
 		output.printAllPlayers()
+	elif command == "teammates":
+		output.printTeammates()
 	elif command == "test":
 		output.getPlayerPositions()
 	else:
@@ -61,5 +63,6 @@ def processArguments(args):
 		print(" new-player <name>")
 		print(" player-details <name>")
 		print(" players")
+		print(" teammates")
 
 processArguments(sys.argv)

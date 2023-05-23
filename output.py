@@ -175,6 +175,76 @@ def printPlayerDetails(name):
 				print("(%d, %d, %d) | %d" % (record['wins'], record['losses'], record['draws'], gp))
 
 
+def gamesTogetherDict(mates, all_players):
+	for player_name in all_players:
+		mate_entry = {}
+		if player_name in mates:
+			mate_entry = mates[player_name]
+		for teammate_name in all_players:
+			player_entry = 1
+			if teammate_name in mate_entry:
+				player_entry = mate_entry[teammate_name] + 1
+			mate_entry[teammate_name] = player_entry
+		mates[player_name] = mate_entry
+	return mates
+
+def printTeammatesPercentageWhenBothAttend():
+	mates = {}
+	teammates = {}
+
+	games = datamanager.getAllGames()
+	for game in games:
+		all_players = game['blue_team'] + game['red_team']
+		mates = gamesTogetherDict(mates, all_players)
+		teammates = gamesTogetherDict(teammates, game['blue_team'])
+		teammates = gamesTogetherDict(teammates, game['red_team'])
+
+	p_string = " , "
+	for p in mates:
+		p_string += p + ", "
+	print(p_string)
+
+	for p in mates:
+		p_string = p + ", "
+		for q in mates:
+			if q in mates[p]:
+				together = 0
+				if q in teammates[p]:
+					together = teammates[p][q]
+				p_string += str(together / mates[p][q]) + ", "
+			else:
+				p_string += "0, "
+		print(p_string)
+
+def printTeammates():
+	mates = {}
+	teammates = {}
+
+	games = datamanager.getAllGames()
+	for game in games:
+		all_players = game['blue_team'] + game['red_team']
+		mates = gamesTogetherDict(mates, all_players)
+		teammates = gamesTogetherDict(teammates, game['blue_team'])
+		teammates = gamesTogetherDict(teammates, game['red_team'])
+
+	p_string = " , "
+	for p in mates:
+		p_string += p + ", "
+	print(p_string)
+
+	for p in mates:
+		p_string = p + ", "
+		for q in mates:
+			if q in mates[p]:
+				together = 0
+				if q in teammates[p]:
+					together = teammates[p][q]
+				p_string += str(together / mates[p][p]) + ", "
+			else:
+				p_string += "0, "
+		print(p_string)
+
+
 def printPlayers():
 	players = datamanager.getAllPlayers()
 	for player in players:
