@@ -216,6 +216,29 @@ def printTeammatesPercentageWhenBothAttend():
 				p_string += "0, "
 		print(p_string)
 
+def printUnevenGames():
+	games = datamanager.getAllGames()
+
+	print("Blue Players,Red Players,Winner,Fake Goalie Victory")
+
+	for game in games:
+		blue_players = game['blue_team']
+		red_players = game['red_team']
+
+		bpn = len(blue_players)
+		rpn = len(red_players)
+
+		result = game['result']
+		condition = "yes"
+		if bpn > rpn and result == 'Blue':
+			condition = "no"
+		elif rpn > bpn and result == 'Red':
+			condition = "no"
+
+		if (bpn > rpn or rpn > bpn) and result != "":
+			print(str(bpn) + "," + str(rpn) + "," + result + "," + condition)
+
+
 def printTeammates():
 	mates = {}
 	teammates = {}

@@ -47,6 +47,8 @@ def processArguments(args):
 		output.printAllPlayers()
 	elif command == "teammates":
 		output.printTeammates()
+	elif command == "uneven-games":
+		output.printUnevenGames()
 	elif command == "test":
 		output.getPlayerPositions()
 	else:
