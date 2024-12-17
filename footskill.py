@@ -51,6 +51,12 @@ def processArguments(args):
 		output.printUnevenGames()
 	elif command == "test":
 		output.getPlayerPositions()
+	elif command == "with-goalies":
+		output.printLeaderBoardWithGoalies()
+	elif command == "gen-with-goalies" and arg_len == 3:
+		output.printFairestTeamsWithGoalies(args[2])
+	elif command == "lasttengames":
+		output.printLast10games();
 	else:
 		print("Commands:")
 		print(" leaderboard")
@@ -66,5 +72,6 @@ def processArguments(args):
 		print(" player-details <name>")
 		print(" players")
 		print(" teammates")
+		print(" with-goalies")
 
 processArguments(sys.argv)

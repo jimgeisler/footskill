@@ -15,61 +15,61 @@ db = TinyDB(database)
 ############################################################
 
 
-# Give a string name, create a new player in the database or find an existing one.
-# name - string that represents player name
-# returns a player that exists in the database
-def findOrCreateNewPlayer(name):
-	existingPlayer = getPlayer(name)
-	if existingPlayer != None:
-		return existingPlayer
+# # Give a string name, create a new player in the database or find an existing one.
+# # name - string that represents player name
+# # returns a player that exists in the database
+# def findOrCreateNewPlayer(name):
+# 	existingPlayer = getPlayer(name)
+# 	if existingPlayer != None:
+# 		return existingPlayer
 
-	playerTable = db.table('players')
-	player = __newPlayerStructure(name)
-	playerTable.insert(player)
-	return player
+# 	playerTable = db.table('players')
+# 	player = __newPlayerStructure(name)
+# 	playerTable.insert(player)
+# 	return player
 
-# name - string that represents a player name
-def __newPlayerStructure(name):
-	new_player = {}
-	new_player['name'] = name
-	new_player['games_played'] = 0
-	new_player['wins'] = 0
-	new_player['losses'] = 0
-	new_player['draws'] = 0
+# # name - string that represents a player name
+# def __newPlayerStructure(name):
+# 	new_player = {}
+# 	new_player['name'] = name
+# 	new_player['games_played'] = 0
+# 	new_player['wins'] = 0
+# 	new_player['losses'] = 0
+# 	new_player['draws'] = 0
 
-	# Rating is represented by mu and sigma
-	rating = Rating()
-	new_player['mu'] = rating.mu
-	new_player['sigma'] = rating.sigma
+# 	# Rating is represented by mu and sigma
+# 	rating = Rating()
+# 	new_player['mu'] = rating.mu
+# 	new_player['sigma'] = rating.sigma
 
-	# Historical data - starting record and rating
-	new_player['records'] = []
-	new_player['ratings'] = []	
-	return new_player
+# 	# Historical data - starting record and rating
+# 	new_player['records'] = []
+# 	new_player['ratings'] = []	
+# 	return new_player
 
-# Get player from the database
-# name - string that represents a player name
-# returns player if found or None
-def getPlayer(name):
-	User = Query()
-	playerTable = db.table('players')
-	players = playerTable.search(User.name == name)
+# # Get player from the database
+# # name - string that represents a player name
+# # returns player if found or None
+# def getPlayer(name):
+# 	User = Query()
+# 	playerTable = db.table('players')
+# 	players = playerTable.search(User.name == name)
 
-	if len(players) > 1:
-		print("Found too many results")
-		return None
-	elif players == []:
-		return None
-	else:
-		return players[0]
+# 	if len(players) > 1:
+# 		print("Found too many results")
+# 		return None
+# 	elif players == []:
+# 		return None
+# 	else:
+# 		return players[0]
 
-# Gets a list of players from a string of player names
-# names - string of player names
-# returns a list of players from the database
-def getPlayers(names):
-	User = Query()
-	playerTable = db.table('players')
-	return playerTable.search(User.name.one_of(names))
+# # Gets a list of players from a string of player names
+# # names - string of player names
+# # returns a list of players from the database
+# def getPlayers(names):
+# 	User = Query()
+# 	playerTable = db.table('players')
+# 	return playerTable.search(User.name.one_of(names))
 
 # returns a list of all players in the database
 def getAllPlayers():
@@ -140,7 +140,7 @@ def generateTeamsWithPlayers(player_names):
 		second_team = players.copy()
 		for player in first_team:
 			second_team.remove(player)
-		quality = __rateTheseTeams(first_team, second_team)
+		quality = rateTheseTeams(first_team, second_team)
 		if quality > bestQuality:
 			bestTeams = [first_team, second_team]
 			bestQuality = quality
@@ -151,7 +151,7 @@ def generateTeamsWithPlayers(player_names):
 		"quality": bestQuality
 	}
 
-def __rateTheseTeams(first_team, second_team):
+def rateTheseTeams(first_team, second_team):
 	team1_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), first_team))
 	team2_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), second_team))
 	return quality([team1_ratings, team2_ratings])
