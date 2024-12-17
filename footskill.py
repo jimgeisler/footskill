@@ -21,27 +21,22 @@ def processArguments(args):
 		output.printGames()
 	elif command == "save-game" and arg_len == 6 and args[5] in outcomes:
 		saveGame(args[2], args[3], args[4], args[5])
-	elif command == "players":
-		output.printAllPlayers()
 	elif command == "teammates":
 		output.printTeammates()
 	elif command == "uneven-games":
 		output.printUnevenGames()
-	elif command == "test":
-		output.getPlayerPositions()
-	elif command == "with-goalies":
+	elif command == "leaderboard":
 		output.printLeaderBoardWithGoalies()
-	elif command == "gen-with-goalies" and arg_len == 3:
+	elif command == "generate-teams" and arg_len == 3:
 		output.printFairestTeamsWithGoalies(args[2])
 	elif command == "lasttengames":
 		output.printLast10games();
 	else:
 		print("Commands:")
-		print(" games")
 		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced]")
-		print(" players")
+		print(" generate-teams <players>")
+		print(" leaderboard")
+		print(" games")		
 		print(" teammates")
-		print(" gen-with-goalies <players>")
-		print(" with-goalies")
 
 processArguments(sys.argv)

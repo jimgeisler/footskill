@@ -19,16 +19,15 @@ Run
 > python3 footskill.py
 
 >Commands:
-> leaderboard<br />
-> leaderboard-table<br />
-> games<br />
 > save-game <date> <blue_players> <red_players> [Red|Blue|Balanced]<br />
 > generate-teams <players><br />
-> player-distribution-table <player_name><br />
-> process-game <date>
-> new-player <name>
+> leaderboard<br />
+> games<br />
+> teammates <name>
 
-Note: saving and processing a game are two separate steps at the moment
+Notes:
+saving a game adds it to the historical record
+player history is generated from the game history
 
 ## How to use FootSkill REST server
 
