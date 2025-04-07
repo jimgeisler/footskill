@@ -4,7 +4,7 @@ import datamanager
 import output
 import constants
 
-outcomes = [constants.blue, constants.red, constants.balanced]
+outcomes = [constants.blue, constants.red, constants.balanced, constants.notTracked]
 
 def saveGame(date, blue_team, red_team, result):
 	blue_player_names = list(map(lambda name: name.strip(), blue_team.split(',')))
@@ -31,9 +31,13 @@ def processArguments(args):
 		output.printFairestTeamsWithGoalies(args[2])
 	elif command == "lasttengames":
 		output.printLast10games();
+	elif command == "bestteammates" and arg_len == 2:
+		output.printHighlightsForAllPlayers()
+	elif command == "numberofgames":
+		output.printNumberOfGames()
 	else:
 		print("Commands:")
-		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced]")
+		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced|Not Tracked]")
 		print(" generate-teams <players>")
 		print(" leaderboard")
 		print(" games")		

@@ -106,6 +106,87 @@ def printPlayerCSVFormat(player, place, prev_game_rank):
 
 ###########
 
+def printHighlightsForAllPlayers():
+	print("Player, Teammate, Record, Improvement")
+	for player in getLeaderboard():
+		record = player['records'][-1]
+		win_percentage = record['wins'] / record['games_played']
+		name = player['name']
+
+		teammates_records = getRecordsWithTeammates(name)
+		best_teammate = ""
+		best_record = 0.0
+
+		# print(teammates_records)
+
+		for record in teammates_records:
+			teammate_name = record['name']
+			record_with_mate = record['info']
+			gp = record_with_mate['gp']
+			wp = record_with_mate['wp']
+
+			if gp > 10 and wp > best_record:
+				best_record = wp
+				best_teammate = teammate_name
+
+		print(name + ", " + best_teammate + ", " + str(best_record) + ", " + str(best_record - win_percentage))
+
+
+
+def getRecordsWithTeammates(player):
+	games = datamanager.getAllGames()
+
+	player_record_per_teammate = {}
+	count = 0
+	for game in games:
+		blueteam = game['blue_team']
+		redteam = game['red_team']
+		result = game['result']
+		team = ""
+		teammates = []
+
+		if player in blueteam:
+			team = constants.blue
+			count += 1
+			teammates = blueteam
+		elif player in redteam:
+			team = constants.red
+			count += 1
+			teammates = redteam
+		else:
+			continue
+
+		for teammate in teammates:
+			if teammate == player:
+				continue
+
+			if not teammate in player_record_per_teammate:
+				player_record_per_teammate[teammate] = {"w":0, "l": 0, "d": 0}
+			if result == team:
+				player_record_per_teammate[teammate]["w"] += 1
+			elif result == constants.balanced:
+				player_record_per_teammate[teammate]["d"] += 1
+			else:
+				player_record_per_teammate[teammate]["l"] += 1
+
+	all_mates = []
+	# print("Teammate, Wins, Losses, Draws, GP")
+	for teammate_name in player_record_per_teammate:
+		record = player_record_per_teammate[teammate_name]
+		gp = record['w'] + record['l'] + record['d']
+		wp = record['w'] / gp
+		# print(teammate_name + ", " + str(record['w']) + ", " + str(record['l']) + ", " + str(record['d']) + ", " + str(gp))
+		# print("win percentage: " + str(wp))
+		all_mates.append({ 'name': teammate_name, 'info' : {'wp': wp, 'gp': gp }})
+
+	return all_mates
+
+###########
+
+def printNumberOfGames():
+	games = datamanager.getAllGames()
+	print(str(len(games)))
+
 def printFairestTeamsWithGoalies(player_names):
 	generateTeamsWithPlayers(player_names)
 	print(" -=-= First Best =-=- ")
