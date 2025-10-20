@@ -42,7 +42,7 @@ class PlayersManager:
 			if len(players) == 0:
 				new_p = self.findOrCreateNewPlayer(name)
 				today_players.append(new_p)
-				tempAllPlayers.append(new_p)
+				self.tempAllPlayers.append(new_p)
 			else:
 				today_players.append(players[0])
 		return today_players
