@@ -125,7 +125,7 @@ def printHighlightsForAllPlayers():
 			gp = record_with_mate['gp']
 			wp = record_with_mate['wp']
 
-			if gp > 10 and wp > best_record:
+			if gp > 5 and wp > best_record:
 				best_record = wp
 				best_teammate = teammate_name
 
@@ -257,11 +257,13 @@ def rateTheseTeams(first_team, second_team):
 	team2_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), second_team))
 	return quality([team1_ratings, team2_ratings])	
 
-def printLeaderBoardWithGoalies():
+def printLeaderBoardWithGoalies(numberOfGames=0):
 	print("Leaderboard")
+	if numberOfGames > 0:
+		print(f"(Last {numberOfGames} games)")
 	print("Name, W, L, D, GP, PPG, Win %, Rank")
 	csp = ', '
-	for player in getLeaderboard():
+	for player in getLeaderboard(numberOfGames):
 		record = player['records'][-1]
 		tempOutput = player['name'] + csp
 		tempOutput += str(record['wins']) + csp
@@ -271,13 +273,30 @@ def printLeaderBoardWithGoalies():
 		tempOutput += str((record['wins'] * 3 + record['draws']) / record['games_played']) + csp
 		tempOutput += str(record['wins'] / record['games_played']) + csp
 		tempOutput += str(player['mu'] - 3 * player['sigma'])
-		
+
 		print(tempOutput)
 
-def getLeaderboard():
-	ratings = []
-	players = playersManager.tempAllPlayers
+def getLeaderboard(numberOfGames=0):
+	# If numberOfGames is specified, create a new PlayersManager with limited history
+	if numberOfGames > 0:
+		limitedPlayersManager = PlayersManager()
+		limitedPlayersManager.clearPlayers()
 
+		# Get only the last N games
+		all_games = datamanager.getAllGames()
+		recent_games = all_games[-numberOfGames:] if len(all_games) >= numberOfGames else all_games
+
+		# Process only these recent games
+		for game in recent_games:
+			if game['result'] in ['Red', 'Blue', 'Balanced']:
+				limitedPlayersManager.generatePlayerHistoryForGame(game)
+
+		players = limitedPlayersManager.tempAllPlayers
+	else:
+		# Use full history
+		players = playersManager.tempAllPlayers
+
+	ratings = []
 	for p in players:
 		ratings.append(Rating(mu=p['mu'], sigma=p['sigma']))
 	leaderboard = sorted(ratings, key=constants.env.expose, reverse=True)

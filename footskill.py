@@ -26,7 +26,14 @@ def processArguments(args):
 	elif command == "uneven-games":
 		output.printUnevenGames()
 	elif command == "leaderboard":
-		output.printLeaderBoardWithGoalies()
+		numberOfGames = 0
+		if arg_len >= 3:
+			try:
+				numberOfGames = int(args[2])
+			except ValueError:
+				print("Error: numberOfGames must be an integer")
+				return
+		output.printLeaderBoardWithGoalies(numberOfGames)
 	elif command == "generate-teams" and arg_len == 3:
 		output.printFairestTeamsWithGoalies(args[2])
 	elif command == "lasttengames":
@@ -39,8 +46,8 @@ def processArguments(args):
 		print("Commands:")
 		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced|Not Tracked]")
 		print(" generate-teams <players>")
-		print(" leaderboard")
-		print(" games")		
+		print(" leaderboard [numberOfGames]")
+		print(" games")
 		print(" teammates")
 
 processArguments(sys.argv)
