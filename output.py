@@ -183,6 +183,175 @@ def getRecordsWithTeammates(player):
 
 ###########
 
+def printMostLeastPlayedWith(numberOfGames=0):
+	"""
+	Print a table showing each player's most and least frequently played with teammates.
+	Shows the percentage of games together when both players were present.
+	Only includes other players with 5+ games together.
+
+	Args:
+		numberOfGames: If > 0, only considers the last N games. If 0, uses all games.
+	"""
+	print("Most and Least Played With Teammates")
+	if numberOfGames > 0:
+		print(f"(Last {numberOfGames} games)")
+	print("Player, Most Played With, % Together, Games Together, Least Played With, % Together, Games Together")
+
+	leaderboard = getLeaderboard()
+
+	for player in leaderboard:
+		player_name = player['name']
+
+		# Skip goalie
+		if player_name == "goalie":
+			continue
+
+		# Skip players with fewer than 10 games
+		total_games = player['records'][-1]['games_played']
+		if total_games < 10:
+			continue
+
+		# Get games (filtered if numberOfGames is specified)
+		all_games = datamanager.getAllGames()
+		if numberOfGames > 0:
+			games = all_games[-numberOfGames:] if len(all_games) >= numberOfGames else all_games
+		else:
+			games = all_games
+
+		# Track for each other player:
+		# - games together on same team
+		# - games together total (same team OR opposing teams)
+		teammate_data = {}  # {player_name: {'same_team': count, 'total_together': count}}
+
+		for game in games:
+			blueteam = game['blue_team']
+			redteam = game['red_team']
+
+			# Check if this player is in the game
+			player_team = None
+			if player_name in blueteam:
+				player_team = 'blue'
+			elif player_name in redteam:
+				player_team = 'red'
+			else:
+				continue
+
+			# For each other player in this game, track if same team or opposite team
+			all_other_players = blueteam + redteam
+			for other_player in all_other_players:
+				if other_player == player_name or other_player == "goalie":
+					continue
+
+				if other_player not in teammate_data:
+					teammate_data[other_player] = {'same_team': 0, 'total_together': 0}
+
+				teammate_data[other_player]['total_together'] += 1
+
+				# Check if on same team
+				if (player_team == 'blue' and other_player in blueteam) or \
+				   (player_team == 'red' and other_player in redteam):
+					teammate_data[other_player]['same_team'] += 1
+
+		# Calculate percentages and filter to those with 5+ games together
+		teammate_percentages = {}
+		for other_player, data in teammate_data.items():
+			if data['total_together'] >= 5:
+				percentage = (data['same_team'] / data['total_together']) * 100
+				teammate_percentages[other_player] = {
+					'percentage': percentage,
+					'games_together': data['total_together']
+				}
+
+		if len(teammate_percentages) == 0:
+			continue
+
+		# Find most and least played with
+		most_played = max(teammate_percentages.items(), key=lambda x: x[1]['percentage'])
+		least_played = min(teammate_percentages.items(), key=lambda x: x[1]['percentage'])
+
+		print(f"{player_name}, {most_played[0]}, {most_played[1]['percentage']:.1f}%, "
+		      f"{most_played[1]['games_together']}, "
+		      f"{least_played[0]}, {least_played[1]['percentage']:.1f}%, "
+		      f"{least_played[1]['games_together']}")
+
+###########
+
+def printMostLeastGamesPlayedWith(numberOfGames=0):
+	"""
+	Print a table showing each player's most and least games played with another person as teammates.
+	This counts only games on the same team.
+	Only includes other players with 5+ games as teammates.
+
+	Args:
+		numberOfGames: If > 0, only considers the last N games. If 0, uses all games.
+	"""
+	print("Most and Least Games Played With (Same Team)")
+	if numberOfGames > 0:
+		print(f"(Last {numberOfGames} games)")
+	print("Player, Most Games With, Games As Teammates, Least Games With, Games As Teammates")
+
+	leaderboard = getLeaderboard()
+
+	for player in leaderboard:
+		player_name = player['name']
+
+		# Skip goalie
+		if player_name == "goalie":
+			continue
+
+		# Skip players with fewer than 10 games
+		total_games = player['records'][-1]['games_played']
+		if total_games < 10:
+			continue
+
+		# Get games (filtered if numberOfGames is specified)
+		all_games = datamanager.getAllGames()
+		if numberOfGames > 0:
+			games = all_games[-numberOfGames:] if len(all_games) >= numberOfGames else all_games
+		else:
+			games = all_games
+
+		# Count how many times this player has been on the same team as each other player
+		games_with_player = {}
+
+		for game in games:
+			blueteam = game['blue_team']
+			redteam = game['red_team']
+
+			# Check if this player is in the game and get their team
+			player_team = None
+			if player_name in blueteam:
+				player_team = 'blue'
+			elif player_name in redteam:
+				player_team = 'red'
+			else:
+				continue
+
+			# Count only teammates on the same team
+			teammates = blueteam if player_team == 'blue' else redteam
+			for teammate in teammates:
+				if teammate == player_name or teammate == "goalie":
+					continue
+
+				if teammate not in games_with_player:
+					games_with_player[teammate] = 0
+				games_with_player[teammate] += 1
+
+		# Filter to those with 5+ games together
+		filtered_players = {k: v for k, v in games_with_player.items() if v >= 5}
+
+		if len(filtered_players) == 0:
+			continue
+
+		# Find most and least games with
+		most_games_with = max(filtered_players.items(), key=lambda x: x[1])
+		least_games_with = min(filtered_players.items(), key=lambda x: x[1])
+
+		print(f"{player_name}, {most_games_with[0]}, {most_games_with[1]}, "
+		      f"{least_games_with[0]}, {least_games_with[1]}")
+
+###########
+
 def printNumberOfGames():
 	games = datamanager.getAllGames()
 	print(str(len(games)))
@@ -255,13 +424,155 @@ def generateTeamsWithPlayers(player_names):
 def rateTheseTeams(first_team, second_team):
 	team1_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), first_team))
 	team2_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), second_team))
-	return quality([team1_ratings, team2_ratings])	
+	return quality([team1_ratings, team2_ratings])
+
+def getCurrentStreak(player_name):
+	"""
+	Calculate the current win/loss/draw streak for a player.
+	Returns a string like "W3" (3 game win streak), "L2" (2 game loss streak), or "D1" (1 game draw streak)
+	"""
+	# Special case: goalie is a placeholder, not a real player
+	if player_name == "goalie":
+		return "N/A"
+
+	games = datamanager.getAllGames(reverse=True)  # Get games in reverse order (most recent first)
+
+	streak_type = None
+	streak_count = 0
+
+	for game in games:
+		# Check if player is in this game
+		player_team = None
+		if player_name in game['blue_team']:
+			player_team = constants.blue
+		elif player_name in game['red_team']:
+			player_team = constants.red
+		else:
+			continue  # Player not in this game
+
+		# Determine result for this player
+		result = game['result']
+		if result not in ['Red', 'Blue', 'Balanced']:
+			continue  # Skip games without tracked results
+
+		if result == constants.balanced:
+			current_result = 'D'
+		elif result == player_team:
+			current_result = 'W'
+		else:
+			current_result = 'L'
+
+		# First game in streak
+		if streak_type is None:
+			streak_type = current_result
+			streak_count = 1
+		# Streak continues
+		elif streak_type == current_result:
+			streak_count += 1
+		# Streak broken
+		else:
+			break
+
+	if streak_type is None:
+		return ""
+
+	return f"{streak_type}{streak_count}"
+
+def getRatingTrend(player_name, trend_window=10):
+	"""
+	Calculate rating trend over the last N games.
+	Returns a string like "↑15.2" (up 15.2 points) or "↓3.5" (down 3.5 points)
+	"""
+	# Special case: goalie is a placeholder, not a real player
+	if player_name == "goalie":
+		return "N/A"
+
+	games = datamanager.getAllGames(reverse=True)
+
+	# Build a list of this player's games with their rating after each game
+	player_games = []
+
+	# We need to replay history to get ratings at specific points
+	# Use the player's records which have historical data
+	players = playersManager.tempAllPlayers
+	player_data = None
+	for p in players:
+		if p['name'] == player_name:
+			player_data = p
+			break
+
+	if player_data is None or 'records' not in player_data or len(player_data['records']) == 0:
+		return ""
+
+	records = player_data['records']
+
+	# We need to get the rating at different points in time
+	# The challenge is that records don't include ratings, only win/loss/draw counts
+	# We need to rebuild ratings from the PlayersManager
+
+	# Alternative approach: compare current rating to rating N games ago
+	# We'll need to rebuild the player history up to N games ago
+
+	all_games = datamanager.getAllGames()
+	player_game_count = 0
+
+	# Count how many games this player has participated in
+	for game in all_games:
+		if player_name in game['blue_team'] or player_name in game['red_team']:
+			if game['result'] in ['Red', 'Blue', 'Balanced']:
+				player_game_count += 1
+
+	if player_game_count < trend_window:
+		# Not enough games for trend
+		return ""
+
+	# Get current rating
+	current_rating = player_data['mu'] - 3 * player_data['sigma']
+
+	# Rebuild ratings up to N games ago
+	past_manager = PlayersManager()
+	past_manager.clearPlayers()
+
+	games_processed = 0
+	for game in all_games:
+		# Check if player is in this game
+		if player_name in game['blue_team'] or player_name in game['red_team']:
+			if game['result'] in ['Red', 'Blue', 'Balanced']:
+				games_processed += 1
+
+				# Stop before the last N games
+				if games_processed > player_game_count - trend_window:
+					break
+
+		# Process this game
+		if game['result'] in ['Red', 'Blue', 'Balanced']:
+			past_manager.generatePlayerHistoryForGame(game)
+
+	# Get the player's rating N games ago
+	past_player = None
+	for p in past_manager.tempAllPlayers:
+		if p['name'] == player_name:
+			past_player = p
+			break
+
+	if past_player is None:
+		return ""
+
+	past_rating = past_player['mu'] - 3 * past_player['sigma']
+	rating_change = current_rating - past_rating
+
+	if rating_change > 0:
+		return f"↑{rating_change:.1f}"
+	elif rating_change < 0:
+		return f"↓{abs(rating_change):.1f}"
+	else:
+		return "→0.0"
 
 def printLeaderBoardWithGoalies(numberOfGames=0):
 	print("Leaderboard")
 	if numberOfGames > 0:
 		print(f"(Last {numberOfGames} games)")
-	print("Name, W, L, D, GP, PPG, Win %, Rank")
+	print("Name, W, L, D, GP, PPG, Win %, Rank, Streak, Trend")
 	csp = ', '
 	for player in getLeaderboard(numberOfGames):
 		record = player['records'][-1]
@@ -272,7 +583,18 @@ def printLeaderBoardWithGoalies(numberOfGames=0):
 		tempOutput += str(record['games_played']) + csp
 		tempOutput += str((record['wins'] * 3 + record['draws']) / record['games_played']) + csp
 		tempOutput += str(record['wins'] / record['games_played']) + csp
-		tempOutput += str(player['mu'] - 3 * player['sigma'])
+		tempOutput += str(player['mu'] - 3 * player['sigma']) + csp
+
+		# Add streak
+		streak = getCurrentStreak(player['name'])
+		tempOutput += streak + csp
+
+		# Add trend (only for full leaderboard, not filtered by numberOfGames)
+		if numberOfGames == 0:
+			trend = getRatingTrend(player['name'])
+			tempOutput += trend
+		else:
+			tempOutput += "N/A"
 
 		print(tempOutput)
 

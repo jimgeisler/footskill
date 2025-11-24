@@ -40,6 +40,24 @@ def processArguments(args):
 		output.printLast10games();
 	elif command == "bestteammates" and arg_len == 2:
 		output.printHighlightsForAllPlayers()
+	elif command == "mostleastplayed":
+		numberOfGames = 0
+		if arg_len >= 3:
+			try:
+				numberOfGames = int(args[2])
+			except ValueError:
+				print("Error: numberOfGames must be an integer")
+				return
+		output.printMostLeastPlayedWith(numberOfGames)
+	elif command == "mostgames":
+		numberOfGames = 0
+		if arg_len >= 3:
+			try:
+				numberOfGames = int(args[2])
+			except ValueError:
+				print("Error: numberOfGames must be an integer")
+				return
+		output.printMostLeastGamesPlayedWith(numberOfGames)
 	elif command == "numberofgames":
 		output.printNumberOfGames()
 	else:
@@ -49,5 +67,8 @@ def processArguments(args):
 		print(" leaderboard [numberOfGames]")
 		print(" games")
 		print(" teammates")
+		print(" bestteammates")
+		print(" mostleastplayed [numberOfGames]")
+		print(" mostgames [numberOfGames]")
 
 processArguments(sys.argv)
