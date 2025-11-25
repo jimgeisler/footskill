@@ -356,13 +356,15 @@ def printNumberOfGames():
 	games = datamanager.getAllGames()
 	print(str(len(games)))
 
-def printFairestTeamsWithGoalies(player_names):
-	generateTeamsWithPlayers(player_names)
+def printFairestTeamsWithGoalies(player_names, clone_pairs=None):
+	if clone_pairs is None:
+		clone_pairs = {}
+	generateTeamsWithPlayers(player_names, clone_pairs)
 	print(" -=-= First Best =-=- ")
 	print("Name,Team")
 	total_players = len(player_names)
 
-	generatedTeams = generateTeamsWithPlayers(player_names)
+	generatedTeams = generateTeamsWithPlayers(player_names, clone_pairs)
 	redTeam = generatedTeams["redTeam"]
 	blueTeam = generatedTeams["blueTeam"]
 	quality = generatedTeams["quality"]
@@ -387,30 +389,68 @@ def printFairestTeamsWithGoalies(player_names):
 	print("Quality: ")
 	print(secondBestQuality)
 
-def generateTeamsWithPlayers(player_names):
+def generateTeamsWithPlayers(player_names, clone_pairs=None):
+	if clone_pairs is None:
+		clone_pairs = {}
+
 	names = player_names.split(', ')
 	if (len(names) % 2) != 0:
 		names.append("goalie")
 	players = playersManager.getPlayers(names)
 
+	# Apply clone logic if specified
+	if clone_pairs:
+		# Build a map of template player ratings
+		template_ratings = {}
+		for template_name in clone_pairs.values():
+			for player in players:
+				if player['name'] == template_name:
+					template_ratings[template_name] = {
+						'mu': player['mu'],
+						'sigma': player['sigma']
+					}
+					break
+
+		# Create copies and apply clone ratings
+		players_copy = []
+		for player in players:
+			player_copy = player.copy()
+			if player_copy['name'] in clone_pairs:
+				template_name = clone_pairs[player_copy['name']]
+				if template_name in template_ratings:
+					# Override the new player's rating with template's rating
+					player_copy['mu'] = template_ratings[template_name]['mu']
+					player_copy['sigma'] = template_ratings[template_name]['sigma']
+			players_copy.append(player_copy)
+		players = players_copy
+
 	total_players = len(players)
 	first_team_size = round(total_players / 2)
-	first_team_combos = list(itertools.combinations(players, first_team_size))
 
 	bestTeams = []
 	bestQuality = 0
 	secondBestQuality = 0
 	secondBestTeams = []
-	for first_team in first_team_combos:
-		second_team = players.copy()
-		for player in first_team:
-			second_team.remove(player)
+
+	# Use indices instead of objects for reliable removal
+	player_indices = list(range(total_players))
+	first_team_combos = list(itertools.combinations(player_indices, first_team_size))
+
+	for first_team_idx in first_team_combos:
+		first_team = [players[i] for i in first_team_idx]
+		second_team_idx = [i for i in player_indices if i not in first_team_idx]
+		second_team = [players[i] for i in second_team_idx]
+
 		quality = rateTheseTeams(first_team, second_team)
 		if quality > bestQuality:
 			secondBestTeams = bestTeams
 			secondBestQuality = bestQuality
 			bestTeams = [first_team, second_team]
 			bestQuality = quality
+
+	# Handle case where there's no second best (shouldn't happen with enough combinations)
+	if len(secondBestTeams) == 0:
+		secondBestTeams = bestTeams
 
 	return {
 		"redTeam": bestTeams[0],

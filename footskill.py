@@ -34,8 +34,26 @@ def processArguments(args):
 				print("Error: numberOfGames must be an integer")
 				return
 		output.printLeaderBoardWithGoalies(numberOfGames)
-	elif command == "generate-teams" and arg_len == 3:
-		output.printFairestTeamsWithGoalies(args[2])
+	elif command == "generate-teams" and arg_len >= 3:
+		# Parse optional --clone arguments
+		clone_pairs = {}
+		player_list_arg = args[2]
+
+		# Check for --clone option
+		if arg_len >= 4 and args[3] == "--clone":
+			# Parse clone pairs: --clone new1 template1 new2 template2 ...
+			clone_args = args[4:]
+			if len(clone_args) < 2 or len(clone_args) % 2 != 0:
+				print("Error: --clone requires pairs of arguments (new_player template_player)")
+				return
+
+			# Build dictionary of clone pairs
+			for i in range(0, len(clone_args), 2):
+				new_player = clone_args[i]
+				template_player = clone_args[i + 1]
+				clone_pairs[new_player] = template_player
+
+		output.printFairestTeamsWithGoalies(player_list_arg, clone_pairs)
 	elif command == "lasttengames":
 		output.printLast10games();
 	elif command == "bestteammates" and arg_len == 2:
@@ -63,7 +81,7 @@ def processArguments(args):
 	else:
 		print("Commands:")
 		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced|Not Tracked]")
-		print(" generate-teams <players>")
+		print(" generate-teams <players> [--clone <new_player1> <template1> <new_player2> <template2> ...]")
 		print(" leaderboard [numberOfGames]")
 		print(" games")
 		print(" teammates")
