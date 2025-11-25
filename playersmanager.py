@@ -64,14 +64,20 @@ class PlayersManager:
 		new_player['losses'] = 0
 		new_player['draws'] = 0
 
-		# Rating is represented by mu and sigma
-		rating = Rating()
-		new_player['mu'] = rating.mu
-		new_player['sigma'] = rating.sigma
+		# Check for custom starting rating
+		starting_rating = datamanager.getPlayerStartingRating(name)
+		if starting_rating:
+			new_player['mu'] = starting_rating['mu']
+			new_player['sigma'] = starting_rating['sigma']
+		else:
+			# Default rating
+			rating = Rating()
+			new_player['mu'] = rating.mu
+			new_player['sigma'] = rating.sigma
 
 		# Historical data - starting record and rating
 		new_player['records'] = []
-		new_player['ratings'] = []	
+		new_player['ratings'] = []
 		return new_player		
 
 	def generatePlayerHistoryForGame(self, game):
