@@ -3,6 +3,7 @@ import sys
 import datamanager
 import output
 import constants
+import slackbot
 from playersmanager import PlayersManager
 
 outcomes = [constants.blue, constants.red, constants.balanced, constants.notTracked]
@@ -132,6 +133,30 @@ def processArguments(args):
 			output.printAttendanceStatsByYear(year)
 		except ValueError:
 			print("Error: year must be an integer")
+	elif command == "slack-teams":
+		attendees, unmapped, bringing_guests = slackbot.get_weekly_attendees()
+		if attendees:
+			# Ask for guest names from :one: reactors
+			if bringing_guests:
+				for host in bringing_guests:
+					guest_name = input(f"{host} is bringing a +1. Enter guest name: ").strip()
+					if guest_name:
+						attendees.append(guest_name)
+
+			print(f"Generating teams for {len(attendees)} players: {', '.join(attendees)}")
+			print()
+			player_list = ', '.join(attendees)
+			output.printFairestTeamsWithGoalies(player_list)
+		elif attendees is not None:
+			print("No attendees found with thumbsup reactions")
+	elif command == "slack-attendees":
+		attendees, unmapped, bringing_guests = slackbot.get_weekly_attendees()
+		if attendees:
+			print(f"Attendees ({len(attendees)}): {', '.join(attendees)}")
+			if bringing_guests:
+				print(f"Bringing a +1: {', '.join(bringing_guests)}")
+		elif attendees is not None:
+			print("No attendees found with thumbsup reactions")
 	else:
 		print("Commands:")
 		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced|Not Tracked]")
@@ -144,5 +169,7 @@ def processArguments(args):
 		print(" bestteammates")
 		print(" mostleastplayed [numberOfGames]")
 		print(" mostgames [numberOfGames]")
+		print(" slack-teams - Generate teams from this week's Slack attendees")
+		print(" slack-attendees - Show this week's Slack attendees")
 
 processArguments(sys.argv)

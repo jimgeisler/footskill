@@ -32,6 +32,10 @@ def printGames():
 			print(game['date'] + " : red team wins")
 		else:
 			print(game['date'] + " : no result")
+			blue_players = " ".join(game['blue_team'])
+			red_players = " ".join(game['red_team'])
+			print("Blue team: " + blue_players)
+			print("Red team: " + red_players)
 			continue
 
 		blue_team_ratings = []
