@@ -798,3 +798,105 @@ def printTeammates():
 			else:
 				p_string += "0, "
 		print(p_string)
+
+###########
+# Attendance Stats by Year
+###########
+
+def getAttendanceStatsByYear(year):
+	"""
+	Calculate attendance stats for all players in a specific year.
+
+	Args:
+		year (int): The year to analyze (e.g., 2024)
+
+	Returns:
+		list: List of dicts with keys:
+			- 'name': player name
+			- 'games_played': total games in the year
+			- 'longest_streak': longest consecutive games attended
+			- 'fake_goalie_games': games where player's team had fewer players
+			- 'is_new_player': boolean whether this was their first year
+	"""
+	all_games = datamanager.getAllGames()
+	year_games = [g for g in all_games if int(g['date'].split('/')[2]) == year]
+
+	if not year_games:
+		return []
+
+	# Collect all unique players in target year
+	players_in_year = set()
+	for game in year_games:
+		players_in_year.update(game['blue_team'])
+		players_in_year.update(game['red_team'])
+
+	# Remove goalie placeholder
+	players_in_year.discard('goalie')
+
+	stats = []
+	for player_name in players_in_year:
+		# Count games played
+		games_played = 0
+		for game in year_games:
+			if player_name in game['blue_team'] or player_name in game['red_team']:
+				games_played += 1
+
+		# Calculate longest streak
+		max_streak = 0
+		current_streak = 0
+		for game in year_games:
+			if player_name in game['blue_team'] or player_name in game['red_team']:
+				current_streak += 1
+				max_streak = max(max_streak, current_streak)
+			else:
+				current_streak = 0
+
+		# Count fake goalie games (games where player's team had fewer players)
+		fake_goalie_games = 0
+		for game in year_games:
+			if player_name in game['blue_team'] and len(game['blue_team']) < len(game['red_team']):
+				fake_goalie_games += 1
+			elif player_name in game['red_team'] and len(game['red_team']) < len(game['blue_team']):
+				fake_goalie_games += 1
+
+		# Determine if player was new this year (first year ever playing)
+		is_new_player = False
+		for game in all_games:  # all_games is already chronological
+			if player_name in game['blue_team'] or player_name in game['red_team']:
+				first_game_year = int(game['date'].split('/')[2])
+				is_new_player = (first_game_year == year)
+				break
+
+		stats.append({
+			'name': player_name,
+			'games_played': games_played,
+			'longest_streak': max_streak,
+			'fake_goalie_games': fake_goalie_games,
+			'is_new_player': is_new_player
+		})
+
+	# Sort by games_played descending
+	stats.sort(key=lambda x: x['games_played'], reverse=True)
+
+	return stats
+
+def printAttendanceStatsByYear(year):
+	"""
+	Print attendance statistics for all players in a specific year.
+	Shows games played, longest streak, fake goalie games, and whether they were new.
+
+	Args:
+		year (int): The year to display stats for
+	"""
+	stats = getAttendanceStatsByYear(year)
+
+	if not stats:
+		print(f"No games recorded in {year}")
+		return
+
+	print(f"Attendance Stats for {year}")
+	print("Player, Games Played, Longest Streak, Fake Goalie Games, New to Group")
+
+	for player in stats:
+		new_marker = "Yes" if player['is_new_player'] else "No"
+		print(f"{player['name']}, {player['games_played']}, {player['longest_streak']}, {player['fake_goalie_games']}, {new_marker}")

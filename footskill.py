@@ -126,12 +126,19 @@ def processArguments(args):
 			addPlayer(args[2], args[3])
 		else:
 			print("Usage: add-player <player_name> [template_player]")
+	elif command == "attendance-stats" and arg_len >= 3:
+		try:
+			year = int(args[2])
+			output.printAttendanceStatsByYear(year)
+		except ValueError:
+			print("Error: year must be an integer")
 	else:
 		print("Commands:")
 		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced|Not Tracked]")
 		print(" add-player <player_name> [template_player]")
 		print(" generate-teams <players> [--clone <new_player1> <template1> <new_player2> <template2> ...]")
 		print(" leaderboard [numberOfGames]")
+		print(" attendance-stats <year>")
 		print(" games")
 		print(" teammates")
 		print(" bestteammates")
