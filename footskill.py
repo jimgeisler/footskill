@@ -95,7 +95,7 @@ def processArguments(args):
 				template_player = clone_args[i + 1]
 				clone_pairs[new_player] = template_player
 
-		output.printFairestTeamsWithGoalies(player_list_arg, clone_pairs)
+		output.printFairestTeamsWithGoalies(player_list_arg, clone_pairs, interactive=True)
 	elif command == "lasttengames":
 		output.printLast10games();
 	elif command == "bestteammates" and arg_len == 2:
@@ -134,19 +134,32 @@ def processArguments(args):
 		except ValueError:
 			print("Error: year must be an integer")
 	elif command == "slack-teams":
+		# Parse -playerName args to remove players
+		remove_players = [arg[1:] for arg in args[2:] if arg.startswith('-')]
+
 		attendees, unmapped, bringing_guests = slackbot.get_weekly_attendees()
 		if attendees:
-			# Ask for guest names from :one: reactors
+			# Remove bailed players
+			for name in remove_players:
+				if name in attendees:
+					attendees.remove(name)
+					print(f"Removed {name}")
+				else:
+					print(f"Warning: {name} not found in attendees")
+
+			# Ask for guest names from :one: and :two: reactors
 			if bringing_guests:
-				for host in bringing_guests:
-					guest_name = input(f"{host} is bringing a +1. Enter guest name: ").strip()
-					if guest_name:
-						attendees.append(guest_name)
+				for host, count in bringing_guests:
+					for i in range(count):
+						label = f"guest {i + 1} of {count}" if count > 1 else "guest"
+						guest_name = input(f"{host} is bringing {count}. Enter {label} name: ").strip()
+						if guest_name:
+							attendees.append(guest_name)
 
 			print(f"Generating teams for {len(attendees)} players: {', '.join(attendees)}")
 			print()
 			player_list = ', '.join(attendees)
-			output.printFairestTeamsWithGoalies(player_list)
+			output.printFairestTeamsWithGoalies(player_list, interactive=True)
 		elif attendees is not None:
 			print("No attendees found with thumbsup reactions")
 	elif command == "slack-attendees":
@@ -154,7 +167,8 @@ def processArguments(args):
 		if attendees:
 			print(f"Attendees ({len(attendees)}): {', '.join(attendees)}")
 			if bringing_guests:
-				print(f"Bringing a +1: {', '.join(bringing_guests)}")
+				guest_info = [f"{name} (+{count})" for name, count in bringing_guests]
+				print(f"Bringing guests: {', '.join(guest_info)}")
 		elif attendees is not None:
 			print("No attendees found with thumbsup reactions")
 	else:
@@ -169,7 +183,7 @@ def processArguments(args):
 		print(" bestteammates")
 		print(" mostleastplayed [numberOfGames]")
 		print(" mostgames [numberOfGames]")
-		print(" slack-teams - Generate teams from this week's Slack attendees")
+		print(" slack-teams [-playerName ...] - Generate teams from this week's Slack attendees")
 		print(" slack-attendees - Show this week's Slack attendees")
 
 processArguments(sys.argv)

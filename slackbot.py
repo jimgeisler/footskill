@@ -65,12 +65,16 @@ def get_attendees_from_post(client, message):
     reactions = message.get('reactions', [])
 
     thumbsup_users = []
-    plus_one_users = []
+    guest_reactions = {}  # user_id -> number of guests
     for reaction in reactions:
         if reaction['name'] == '+1':
             thumbsup_users = reaction['users']
         elif reaction['name'] == 'one':
-            plus_one_users = reaction['users']
+            for uid in reaction['users']:
+                guest_reactions[uid] = 1
+        elif reaction['name'] == 'two':
+            for uid in reaction['users']:
+                guest_reactions[uid] = 2
 
     attendees = []
     unmapped = []
@@ -81,14 +85,14 @@ def get_attendees_from_post(client, message):
             slack_name = resolve_user_name(client, user_id)
             unmapped.append((user_id, slack_name))
 
-    # Resolve plus-one users to names so we can tell who's bringing a guest
+    # Resolve guest-bringing users to (name, count) tuples
     bringing_guests = []
-    for user_id in plus_one_users:
+    for user_id, count in guest_reactions.items():
         if user_id in player_map:
-            bringing_guests.append(player_map[user_id])
+            bringing_guests.append((player_map[user_id], count))
         else:
             slack_name = resolve_user_name(client, user_id)
-            bringing_guests.append(slack_name)
+            bringing_guests.append((slack_name, count))
 
     return attendees, unmapped, bringing_guests
 

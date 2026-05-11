@@ -360,38 +360,33 @@ def printNumberOfGames():
 	games = datamanager.getAllGames()
 	print(str(len(games)))
 
-def printFairestTeamsWithGoalies(player_names, clone_pairs=None):
+def printFairestTeamsWithGoalies(player_names, clone_pairs=None, interactive=False):
 	if clone_pairs is None:
 		clone_pairs = {}
-	generateTeamsWithPlayers(player_names, clone_pairs)
-	print(" -=-= First Best =-=- ")
-	print("Name,Team")
-	total_players = len(player_names)
 
-	generatedTeams = generateTeamsWithPlayers(player_names, clone_pairs)
-	redTeam = generatedTeams["redTeam"]
-	blueTeam = generatedTeams["blueTeam"]
-	quality = generatedTeams["quality"]
+	ranked_teams = generateTeamsWithPlayers(player_names, clone_pairs)
 
-	secondBestRedTeam = generatedTeams["secondBestRed"]
-	secondBestBlueTeam = generatedTeams["secondBestBlue"]
-	secondBestQuality = generatedTeams["secondBestQuality"]
+	for i, team in enumerate(ranked_teams):
+		print(f" -=-= Option {i + 1} =-=- ")
+		print("Name,Team")
+		for player in team['blue']:
+			print(player['name'] + ",Blue")
+		for player in team['red']:
+			print(player['name'] + ",Red")
+		print(f"Blue win: {team['blue_win']:.1%}")
+		print(f"Red win: {1.0 - team['blue_win']:.1%}")
+		print(f"Fairness: {team['fairness']:.1%}")
 
-	for player in blueTeam:
-		print(player['name'] + ",Blue")
-	for player in redTeam:
-		print(player['name'] + ",Red")
-	print("Quality: ")
-	print(quality)
-
-	print(" -=-= Second Best =-=- ")
-	print("Name,Team")
-	for player in secondBestBlueTeam:
-		print(player['name'] + ",Blue")
-	for player in secondBestRedTeam:
-		print(player['name'] + ",Red")
-	print("Quality: ")
-	print(secondBestQuality)
+		if interactive:
+			response = input("Accept these teams? (y/n): ").strip().lower()
+			if response == 'y':
+				return
+			print()
+		else:
+			# Non-interactive: show top 2 only
+			if i >= 1:
+				break
+			print()
 
 def generateTeamsWithPlayers(player_names, clone_pairs=None):
 	if clone_pairs is None:
@@ -431,39 +426,35 @@ def generateTeamsWithPlayers(player_names, clone_pairs=None):
 	total_players = len(players)
 	first_team_size = round(total_players / 2)
 
-	bestTeams = []
-	bestQuality = 0
-	secondBestQuality = 0
-	secondBestTeams = []
+	all_combos = []
 
 	# Use indices instead of objects for reliable removal
 	player_indices = list(range(total_players))
 	first_team_combos = list(itertools.combinations(player_indices, first_team_size))
 
+	seen = set()
 	for first_team_idx in first_team_combos:
+		second_team_idx = tuple(i for i in player_indices if i not in first_team_idx)
+		# Deduplicate mirror matchups (A vs B is same as B vs A)
+		key = tuple(sorted([first_team_idx, second_team_idx]))
+		if key in seen:
+			continue
+		seen.add(key)
+
 		first_team = [players[i] for i in first_team_idx]
-		second_team_idx = [i for i in player_indices if i not in first_team_idx]
 		second_team = [players[i] for i in second_team_idx]
 
-		quality = rateTheseTeams(first_team, second_team)
-		if quality > bestQuality:
-			secondBestTeams = bestTeams
-			secondBestQuality = bestQuality
-			bestTeams = [first_team, second_team]
-			bestQuality = quality
+		blue_win = win_probability(first_team, second_team)
+		fairness = 1.0 - abs(blue_win - 0.5) * 2  # 1.0 = perfectly fair, 0.0 = total mismatch
+		all_combos.append({
+			'blue': first_team,
+			'red': second_team,
+			'blue_win': blue_win,
+			'fairness': fairness
+		})
 
-	# Handle case where there's no second best (shouldn't happen with enough combinations)
-	if len(secondBestTeams) == 0:
-		secondBestTeams = bestTeams
-
-	return {
-		"redTeam": bestTeams[0],
-		"blueTeam": bestTeams[1],
-		"quality": bestQuality,
-		"secondBestRed": secondBestTeams[0],
-		"secondBestBlue": secondBestTeams[1],
-		"secondBestQuality": secondBestQuality
-	}	
+	all_combos.sort(key=lambda x: x['fairness'], reverse=True)
+	return all_combos
 
 def rateTheseTeams(first_team, second_team):
 	team1_ratings = list(map(lambda player: Rating(mu=player['mu'], sigma=player['sigma']), first_team))
