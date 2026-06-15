@@ -162,6 +162,18 @@ def processArguments(args):
 			output.printFairestTeamsWithGoalies(player_list, interactive=True)
 		elif attendees is not None:
 			print("No attendees found with thumbsup reactions")
+	elif command == "slack-validate":
+		pm = PlayersManager()
+		known_player_names = [p['name'] for p in pm.tempAllPlayers]
+		mismatches = slackbot.validate_player_map(known_player_names)
+		if mismatches:
+			print("Player map entries that don't match a known player:")
+			for uid, name in mismatches:
+				print(f"  {uid}: \"{name}\" - no player named \"{name}\" in game history")
+			print()
+			print("Fix the name in slack_player_map.json (or add the game/player) to avoid creating a phantom player.")
+		else:
+			print("All slack_player_map.json entries map to known players.")
 	elif command == "slack-attendees":
 		attendees, unmapped, bringing_guests = slackbot.get_weekly_attendees()
 		if attendees:
@@ -185,5 +197,6 @@ def processArguments(args):
 		print(" mostgames [numberOfGames]")
 		print(" slack-teams [-playerName ...] - Generate teams from this week's Slack attendees")
 		print(" slack-attendees - Show this week's Slack attendees")
+		print(" slack-validate - Check slack_player_map.json names against known players")
 
 processArguments(sys.argv)

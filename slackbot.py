@@ -28,6 +28,19 @@ def save_player_map(player_map):
     with open(PLAYER_MAP_FILE, 'w') as f:
         json.dump(player_map, f, indent=4)
 
+def validate_player_map(known_player_names):
+    """
+    Cross-check every player name in slack_player_map.json against the set of
+    known player names (e.g. from the leaderboard / game history).
+
+    Returns a list of (slack_id, mapped_name) tuples whose mapped_name is not a
+    known player, which usually means a typo that would silently create a brand
+    new player when teams are generated.
+    """
+    player_map = load_player_map()
+    known = set(known_player_names)
+    return [(uid, name) for uid, name in player_map.items() if name not in known]
+
 def resolve_user_name(client, user_id):
     """Get a display name for a Slack user ID using the profile API."""
     resp = client.api_call('users.profile.get', params={'user': user_id})
@@ -75,6 +88,9 @@ def get_attendees_from_post(client, message):
         elif reaction['name'] == 'two':
             for uid in reaction['users']:
                 guest_reactions[uid] = 2
+        elif reaction['name'] == 'three':
+            for uid in reaction['users']:
+                guest_reactions[uid] = 3
 
     attendees = []
     unmapped = []
