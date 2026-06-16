@@ -91,6 +91,9 @@ def get_attendees_from_post(client, message):
         elif reaction['name'] == 'three':
             for uid in reaction['users']:
                 guest_reactions[uid] = 3
+        elif reaction['name'] == 'four':
+            for uid in reaction['users']:
+                guest_reactions[uid] = 4
 
     attendees = []
     unmapped = []
