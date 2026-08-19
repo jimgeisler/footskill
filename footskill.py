@@ -13,6 +13,85 @@ def saveGame(date, blue_team, red_team, result):
 	red_player_names = list(map(lambda name: name.strip(), red_team.split(',')))
 	datamanager.createNewGame(date, blue_player_names, red_player_names, result)
 
+def saveGameFromPaste(date=None, result=None):
+	"""
+	Save a game by pasting a two-column roster (one 'Name<tab/space>Team' per line,
+	e.g. straight from a spreadsheet). Team is Blue or Red. Date and result may be
+	passed as args or entered interactively.
+	"""
+	if date is None:
+		date = input("Date (MM/DD/YYYY): ").strip()
+	if result is None:
+		result = input(f"Result [{'/'.join(outcomes)}]: ").strip()
+
+	if result not in outcomes:
+		print(f"Error: result must be one of {outcomes}")
+		return
+
+	print("Paste roster (one 'Name<tab/space>Team' per line). Press Enter on a blank line when done:")
+	roster_lines = []
+	while True:
+		try:
+			line = input()
+		except EOFError:
+			break
+		if line.strip() == '':
+			break
+		roster_lines.append(line)
+
+	blue_team = []
+	red_team = []
+	errors = []
+	for line in roster_lines:
+		line = line.strip()
+		if not line:
+			continue
+		# Split off the last whitespace-delimited token as the team so names
+		# with spaces ("Chris S.", "James H.") stay intact.
+		parts = line.rsplit(None, 1)
+		if len(parts) != 2:
+			errors.append(line)
+			continue
+		name, team = parts[0].strip(), parts[1].strip().lower()
+		if team == 'blue':
+			blue_team.append(name)
+		elif team == 'red':
+			red_team.append(name)
+		else:
+			errors.append(line)
+
+	if errors:
+		print("\nCould not parse these lines (expected 'Name Blue' or 'Name Red'):")
+		for e in errors:
+			print(f"  {e}")
+		return
+
+	if not blue_team and not red_team:
+		print("No players found in the pasted roster.")
+		return
+
+	# Warn about names that aren't known players (would create phantom players).
+	pm = PlayersManager()
+	known = {p['name'] for p in pm.tempAllPlayers}
+	unknown = [n for n in blue_team + red_team if n not in known]
+
+	print(f"\nDate: {date}   Result: {result}")
+	print(f"Blue ({len(blue_team)}): {', '.join(blue_team)}")
+	print(f"Red ({len(red_team)}): {', '.join(red_team)}")
+	if unknown:
+		print(f"\nWarning: these names are not existing players and will be created new: {', '.join(unknown)}")
+
+	try:
+		confirm = input("\nSave this game? [y/N]: ").strip().lower()
+	except EOFError:
+		confirm = ''
+	if confirm != 'y':
+		print("Cancelled.")
+		return
+
+	datamanager.createNewGame(date, blue_team, red_team, result)
+	print("Game saved.")
+
 def addPlayer(player_name, template_player_name=None):
 	"""
 	Add a new player to the database with an optional starting rating based on a template player.
@@ -63,6 +142,10 @@ def processArguments(args):
 		output.printGames()
 	elif command == "save-game" and arg_len == 6 and args[5] in outcomes:
 		saveGame(args[2], args[3], args[4], args[5])
+	elif command == "save-game-paste":
+		date = args[2] if arg_len >= 3 else None
+		result = args[3] if arg_len >= 4 else None
+		saveGameFromPaste(date, result)
 	elif command == "teammates":
 		output.printTeammates()
 	elif command == "uneven-games":
@@ -186,6 +269,7 @@ def processArguments(args):
 	else:
 		print("Commands:")
 		print(" save-game <date> <blue_players> <red_players> [Red|Blue|Balanced|Not Tracked]")
+		print(" save-game-paste [date] [result] - Save a game by pasting a 'Name<tab>Team' roster")
 		print(" add-player <player_name> [template_player]")
 		print(" generate-teams <players> [--clone <new_player1> <template1> <new_player2> <template2> ...]")
 		print(" leaderboard [numberOfGames]")
